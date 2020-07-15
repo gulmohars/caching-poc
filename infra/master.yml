@@ -1,0 +1,115 @@
+Description: >
+
+
+  This template create vpc, nat, load-balancer, ecs cluster and deploy services.
+
+  Author: Gulmohar<gulmoharsontakke@gmail.com>
+
+Parameters:
+  LaunchType:
+    Type: String
+    Default: Fargate
+    AllowedValues:
+      - Fargate
+      - EC2
+    Description: >
+      The launch type for your service. Selecting EC2 will create an Auto
+      Scaling group of t2.micro instances for your cluster. See
+      https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html
+      to learn more about launch types.
+
+  GitHubUser:
+    Type: String
+    Default: gulmohars
+    Description: Your username on GitHub.
+
+  GitHubRepo:
+    Type: String
+    Default: CachingEngineDocker
+    Description: The repo name of the sample service.
+
+  GitHubBranch:
+    Type: String
+    Default: master
+    Description: The branch of the repo to continuously deploy.
+
+  GitHubToken:
+    Type: String
+    Default: my-token
+    NoEcho: true
+    Description: >
+      Token for the user specified above. (https://github.com/settings/tokens)
+
+  TemplateBucket:
+    Type: String
+    Default: caching-service
+    Description: >
+      The S3 bucket from which to fetch the templates used by this stack.
+
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://caching-service.s3.us-east-2.amazonaws.com/01_vpc-network.yml
+      Parameters:
+        EnvironmentName: msdemo
+  NAT:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://caching-service.s3.us-east-2.amazonaws.com/02_nat-gateway.yml
+      Parameters:
+        EnvironmentName: msdemo
+        PublicSubnetOne: !GetAtt VPC.Outputs.PublicSubnetOne
+        PrivateRouteTable: !GetAtt VPC.Outputs.PrivateRouteTable
+  ALB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://caching-service.s3.us-east-2.amazonaws.com/03_load-balancer.yml
+      Parameters:
+        EnvironmentName: msdemo
+        VPCId: !GetAtt VPC.Outputs.VPCId
+        PublicSubnetOne: !GetAtt VPC.Outputs.PublicSubnetOne
+        PublicSubnetTwo: !GetAtt VPC.Outputs.PublicSubnetTwo
+  ECS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://caching-service.s3.us-east-2.amazonaws.com/04_ecs-cluster.yml
+      Parameters:
+        EnvironmentName: msdemo
+        VPCId: !GetAtt VPC.Outputs.VPCId
+        PublicLoadBalancerSG: !GetAtt ALB.Outputs.PublicLoadBalancerSG
+
+  CachingService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://caching-service.s3.us-east-2.amazonaws.com/05_caching-service.yml
+      Parameters:
+        EnvironmentName: msdemo
+        ClusterName: !GetAtt ECS.Outputs.ClusterName
+        ECSTaskExecutionRole: !GetAtt ECS.Outputs.ECSTaskExecutionRole
+        FargateContainerSecurityGroup: !GetAtt ECS.Outputs.FargateContainerSecurityGroup
+        PrivateSubnetOne: !GetAtt VPC.Outputs.PrivateSubnetOne
+        PrivateSubnetTwo: !GetAtt VPC.Outputs.PrivateSubnetTwo
+        VPCId: !GetAtt VPC.Outputs.VPCId
+        PublicLoadBalancerListener: !GetAtt ALB.Outputs.PublicLoadBalancerListener
+  DeploymentPipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://caching-service.s3.us-east-2.amazonaws.com/06_deployment-pipeline.yml
+      Parameters:
+        Cluster: !GetAtt ECS.Outputs.ClusterName
+        Repository: !GetAtt CachingService.Outputs.Repository
+        CodeCommitRepo: !Ref GitHubRepo
+        RepositoryBranch: !Ref GitHubBranch
+        TargetGroup: !GetAtt CachingService.Outputs.TargetGroup
+        StackName: !GetAtt CachingService.Outputs.StackName
+        TemplateBucket: !Ref TemplateBucket
+        GitHubUser: !Ref GitHubUser
+        GitHubToken: !Ref GitHubToken
+        GitHubRepo: !Ref GitHubRepo
+        GitHubBranch: !Ref GitHubBranch
+
+Outputs:
+  LoadBalancerUrl:
+    Description: Load balancer url
+    Value: !GetAtt ALB.Outputs.ExternalUrl
