@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: API service - Caching poc service
+Description: API service - Order service
 Parameters:
   EnvironmentName:
     Type: String
@@ -7,15 +7,15 @@ Parameters:
     Description: Name of the environment.
   ServiceName:
     Type: String
-    Default: 'caching-service'
+    Default: 'order-service'
     Description: Service name
   ImageUrl:
     Type: String
-    Default: 458022107738.dkr.ecr.us-east-2.amazonaws.com/caching-engine-docker:v0.0.3
+    Default: 458022107738.dkr.ecr.us-east-2.amazonaws.com/msdemo/orderservice:latest
     Description: The url of a docker image
   ContainerPort:
     Type: Number
-    Default: 5000
+    Default: 8080
     Description: API port
   TaskCpu:
     Type: Number
@@ -27,11 +27,11 @@ Parameters:
     Description: How much memory in megabytes to give the container
   Path:
     Type: String
-    Default: '/*'
+    Default: '/api/v1/orderservice/*'
     Description: A path on the public load balancer.
   Priority:
     Type: Number
-    Default: 1
+    Default: 2
     Description: The priority for the routing rule.
   DesiredCount:
     Type: Number
@@ -42,28 +42,11 @@ Parameters:
     Default: ''
     Description: (Optional) An IAM role to give the service's containers if the code within needs to
       access other AWS resources like S3 buckets, DynamoDB tables, etc
-  ClusterName:
-    Type: String
-  ECSTaskExecutionRole:
-    Type: String
-  FargateContainerSecurityGroup:
-    Type: String
-  PrivateSubnetOne:
-    Type: String
-  PrivateSubnetTwo:
-    Type: String
-  VPCId:
-    Type: String
-  PublicLoadBalancerListener:
-    Type: String
 
 Conditions:
   HasCustomRole: !Not [!Equals [!Ref 'Role', '']]
 
 Resources:
-  Repository:
-    Type: AWS::ECR::Repository
-    DeletionPolicy: Retain
   # A log group for storing the container logs for this service
   LogGroup:
     Type: AWS::Logs::LogGroup
@@ -81,7 +64,8 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
+      ExecutionRoleArn:
+        Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'ECSTaskExecutionRole']]
       ContainerDefinitions:
         - Name: !Ref 'ServiceName'
           Cpu: !Ref 'TaskCpu'
@@ -107,7 +91,8 @@ Resources:
     DependsOn: LoadBalancerRule
     Properties:
       ServiceName: !Ref 'ServiceName'
-      Cluster: !Ref 'ClusterName'
+      Cluster:
+        Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'ClusterName']]
       LaunchType: FARGATE
       DeploymentConfiguration:
         MaximumPercent: 200
@@ -117,10 +102,10 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           SecurityGroups:
-            - !Ref 'FargateContainerSecurityGroup'
+            - Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'FargateContainerSecurityGroup']]
           Subnets:
-            - !Ref 'PrivateSubnetOne'
-            - !Ref 'PrivateSubnetTwo'
+            - Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'PrivateSubnetOne']]
+            - Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'PrivateSubnetTwo']]
       TaskDefinition: !Ref 'TaskDefinition'
       Role:
         Fn::If:
@@ -141,19 +126,20 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: 20
-      HealthCheckPath: /health
+      HealthCheckPath: /api/v1/orderservice/health
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       TargetType: ip
       Name: !Ref 'ServiceName'
-      Port: 5000
+      Port: 8080
       Protocol: HTTP
       UnhealthyThresholdCount: 2
       TargetGroupAttributes:
         - Key: stickiness.enabled
           Value: false
-      VpcId: !Ref 'VPCId'
+      VpcId:
+        Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'VPCId']]
 
   # Create a rule on the load balancer for routing traffic to the target group
   LoadBalancerRule:
@@ -165,17 +151,6 @@ Resources:
       Conditions:
         - Field: path-pattern
           Values: [!Ref 'Path']
-      ListenerArn: !Ref 'PublicLoadBalancerListener'
+      ListenerArn:
+        Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'PublicLoadBalancerListener']]
       Priority: !Ref 'Priority'
-
-Outputs:
-  ServiceOne:
-    Value: !Ref 'Service'
-  TargetGroup:
-    Description: ALB TargetGroup created
-    Value: !Ref TargetGroup
-  StackName:
-    Value: !Ref AWS::StackName
-  Repository:
-    Description: ECR Repository.
-    Value: !Ref Repository
