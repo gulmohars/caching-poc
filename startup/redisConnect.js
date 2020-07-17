@@ -2,8 +2,9 @@ const config = require('config');
 const redis = require('async-redis');
 
 module.exports = () => {
-  const redisHost = config.get('redisHost');
-  const redisPort = config.get('redisPort');
+  const redisHost = typeof process.env.ELASTICACHE_ENDPOINT !== 'undefined' ? process.env.ELASTICACHE_ENDPOINT : config.get('redisHost');
+  const redisPort = typeof process.env.ELASTICACHE_PORT !== 'undefined' ? process.env.ELASTICACHE_PORT : config.get('redisPort');
+
   try {
     // return redis.createClient(redisPort, redisHost);
 
@@ -12,7 +13,6 @@ module.exports = () => {
     redisPort: ${JSON.stringify(redisPort)}
     redisHost: ${JSON.stringify(redisHost)}
     
-    process.env: ${JSON.stringify(process.env)}
 
     `);
 

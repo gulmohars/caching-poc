@@ -10,7 +10,11 @@ input: {
 }
 */
 router.post('/', async (req, res) => {
-  const { rKey, rValue, rTTL } = req.body;
+  let { rKey, rValue, rTTL } = req.body;
+
+  if (typeof rValue === 'number') {
+    rValue = rValue * 10;
+  }
   const paramsObj = { rKey, rValue, rTTL };
   const result = await redisController.addValue(paramsObj);
   res.send(result);
