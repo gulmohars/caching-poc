@@ -7,12 +7,14 @@ module.exports = () => {
   try {
     // return redis.createClient(redisPort, redisHost);
 
-    // console.log(`
+    console.log(`
 
-    // redisPort: ${JSON.stringify(redisPort)}
-    // redisHost: ${JSON.stringify(redisHost)}
+    redisPort: ${JSON.stringify(redisPort)}
+    redisHost: ${JSON.stringify(redisHost)}
+    
+    process.env: ${JSON.stringify(process.env)}
 
-    // `);
+    `);
 
     // const redisClient = redis.createClient({ host: redisHost, port: redisPort });
     // const redisClient = redis.createClient({ host: 'redis-server', port: 6379 });

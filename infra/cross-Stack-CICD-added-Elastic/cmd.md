@@ -1,12 +1,8 @@
 aws ecr get-login --no-include-email --profile gulmohars | sh
 
-aws cloudformation --profile gulmohars create-stack --stack-name vpc --template-body file://$PWD/caching-poc/INFRA/CICD-Cross-Stack/01_vpc-network.yml
-aws cloudformation  --profile gulmohars create-stack --stack-name nat --template-body file://$PWD/caching-poc/INFRA/CICD-Cross-Stack/02_nat-gateway.yml
-aws cloudformation --profile gulmohars create-stack --stack-name lb --template-body file://$PWD/caching-poc/INFRA/CICD-Cross-Stack/03_load-balancer.yml
-aws cloudformation  --profile gulmohars create-stack --stack-name ecs --template-body file://$PWD/caching-poc/INFRA/CICD-Cross-Stack/04_ecs-cluster.yml --capabilities CAPABILITY_IAM
-aws cloudformation --profile gulmohars create-stack --stack-name cs --template-body file://$PWD/caching-poc/INFRA/CICD-Cross-Stack/05_customer-service.yml
-aws cloudformation  --profile gulmohars create-stack --stack-name oss --template-body file://$PWD/caching-poc/INFRA/CICD-Cross-Stack/06_order-service.yml
-aws cloudformation --profile gulmohars create-stack --stack-name ec --template-body file://\$PWD/caching-poc/INFRA/CICD-Cross-Stack/07_caching-service.yml
+aws cloudformation --profile gulmohars create-stack --stack-name rc --template-body file://\$PWD/caching-poc/infra/cross-Stack-CICD-added-Elastic/cloudformation/04_a_redis-cluster.yml
+
+aws cloudformation --profile gulmohars create-stack --stack-name ec --template-body file://\$PWD/caching-poc/infra/cross-Stack-CICD-added-Elastic/cloudformation/07_caching-service.yml
 
 login to aws console >> cloudformation >> create stack-name
 select the upload template and choose the file -->> caching-poc/INFRA/CICD-Cross-Stack/deployment-pipeline.yaml
