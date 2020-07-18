@@ -6,19 +6,6 @@ module.exports = () => {
   const redisPort = typeof process.env.ELASTICACHE_PORT !== 'undefined' ? process.env.ELASTICACHE_PORT : config.get('redisPort');
 
   try {
-    // return redis.createClient(redisPort, redisHost);
-
-    console.log(`
-
-    redisPort: ${JSON.stringify(redisPort)}
-    redisHost: ${JSON.stringify(redisHost)}
-    
-
-    `);
-
-    // const redisClient = redis.createClient({ host: redisHost, port: redisPort });
-    // const redisClient = redis.createClient({ host: 'redis-server', port: 6379 });
-
     const redisClient = redis.createClient(redisPort, redisHost, {
       retry_strategy: function (options) {
         if (options.error && options.error.code === 'ECONNREFUSED') {
@@ -40,7 +27,7 @@ module.exports = () => {
       },
     });
 
-    console.log(`Successfully connected to Redis Cache...`);
+    // console.log(`Successfully connected to Redis Cache...`);
     return redisClient;
   } catch (error) {
     console.log(`Unable to connect to Redis Cache...`);

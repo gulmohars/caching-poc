@@ -27,7 +27,7 @@ Parameters:
     Description: How much memory in megabytes to give the container
   Path:
     Type: String
-    Default: '/api/v1/redis-service/*'
+    Default: '/api/v1/caching-service/*'
     Description: A path on the public load balancer.
   Priority:
     Type: Number
@@ -126,7 +126,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: 20
-      HealthCheckPath: /api/v1/redis-service/health
+      HealthCheckPath: /api/v1/caching-service/health
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2

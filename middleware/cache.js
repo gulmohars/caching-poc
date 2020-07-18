@@ -1,11 +1,11 @@
-const redisUtility = require('../utils/redisUtility');
+const cachingUtility = require('../utils/cachingUtility');
 
 //Cache midleware'
 async function cache(req, res, next) {
   const { rKey } = req.params;
-  const result = await redisUtility.getValue(rKey);
+  const result = await cachingUtility.getValue(rKey);
 
-  if (result !== 'Key does not Exists') {
+  if (result !== null) {
     res.send(result);
   } else {
     next();

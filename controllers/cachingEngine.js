@@ -1,10 +1,10 @@
-const redisUtility = require('../utils/redisUtility');
+const cachingEngineService = require('../services/cachingEngine');
 
-const redisController = {};
+const cachingEngineController = {};
 
-redisController.addValue = async (paramsObj) => {
+cachingEngineController.addValue = async (paramsObj) => {
   const response = { status: false, data: {} };
-  const result = await redisUtility.addValue(paramsObj);
+  const result = await cachingEngineService.addValue(paramsObj);
 
   if (result) {
     response.status = true;
@@ -13,9 +13,9 @@ redisController.addValue = async (paramsObj) => {
   return response;
 };
 
-redisController.listValues = async () => {
+cachingEngineController.listValues = async () => {
   const response = { status: false, data: {} };
-  const result = await redisUtility.listValues();
+  const result = await cachingEngineService.listValues();
   if (result) {
     response.status = true;
     response.data = result;
@@ -23,20 +23,9 @@ redisController.listValues = async () => {
   return response;
 };
 
-redisController.getValue = async (rKey) => {
+cachingEngineController.getValue = async (rKey) => {
   const response = { status: false, data: {} };
-  const result = await redisUtility.getValue(rKey);
-
-  if (result) {
-    response.status = true;
-    response.data = result;
-  }
-  return response;
-};
-
-redisController.updateValue = async (paramsObj) => {
-  const response = { status: false, data: {} };
-  const result = await redisUtility.updateValue(paramsObj);
+  const result = await cachingEngineService.getValue(rKey);
 
   if (result) {
     response.status = true;
@@ -45,9 +34,9 @@ redisController.updateValue = async (paramsObj) => {
   return response;
 };
 
-redisController.deleteKey = async (rKey) => {
+cachingEngineController.updateValue = async (paramsObj) => {
   const response = { status: false, data: {} };
-  const result = await redisUtility.deleteKey(rKey);
+  const result = await cachingEngineService.updateValue(paramsObj);
 
   if (result) {
     response.status = true;
@@ -56,4 +45,15 @@ redisController.deleteKey = async (rKey) => {
   return response;
 };
 
-module.exports = redisController;
+cachingEngineController.deleteKey = async (rKey) => {
+  const response = { status: false, data: {} };
+  const result = await cachingEngineService.deleteKey(rKey);
+
+  if (result) {
+    response.status = true;
+    response.data = result;
+  }
+  return response;
+};
+
+module.exports = cachingEngineController;

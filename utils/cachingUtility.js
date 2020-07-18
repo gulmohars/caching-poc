@@ -1,7 +1,7 @@
-const redisClient = require('../startup/redisConnect')();
-const redisUtility = {};
+const redisClient = require('./redisConnect')();
+const cachingUtility = {};
 
-redisUtility.addValue = async (paramsObj) => {
+cachingUtility.addValue = async (paramsObj) => {
   const { rKey, rValue, rTTL } = paramsObj;
   if (await redisClient.get(rKey)) {
     return 'Key already Exists';
@@ -11,38 +11,36 @@ redisUtility.addValue = async (paramsObj) => {
   } else {
     return await redisClient.set(rKey, rValue);
   }
-  //return await redisClient.setex(rKey, rTTL, rValue);
 };
 
-redisUtility.getValue = async (rKey) => {
+cachingUtility.getValue = async (rKey) => {
   if (!(await redisClient.get(rKey))) {
-    return 'Key does not Exists';
+    return null;
   }
   return await redisClient.get(rKey);
 };
 
-redisUtility.listValues = async () => {
+cachingUtility.listValues = async () => {
   return await redisClient.keys('*');
 };
 
-redisUtility.updateValue = async (paramsObj) => {
+cachingUtility.updateValue = async (paramsObj) => {
   const { rKey, rValue, rTTL } = paramsObj;
   if (!(await redisClient.get(rKey))) {
-    return 'Key does not Exists';
+    return null;
   }
   if (typeof rTTL !== 'undefined') {
     return await redisClient.setex(rKey, rTTL, rValue);
   } else {
     return await redisClient.set(rKey, rValue);
   }
-  // return await redisClient.setex(rKey, rTTL, rValue);
 };
 
-redisUtility.deleteKey = async (rKey) => {
+cachingUtility.deleteKey = async (rKey) => {
   if (!(await redisClient.get(rKey))) {
-    return 'Key does not Exists';
+    return null;
   }
   return await redisClient.del(rKey);
 };
 
-module.exports = redisUtility;
+module.exports = cachingUtility;

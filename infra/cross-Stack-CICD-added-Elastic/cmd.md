@@ -90,9 +90,9 @@ http://lb-publiclo-zz5bd32mg6fn-1394132557.us-east-2.elb.amazonaws.com/api/v1/cu
 
 http://lb-publiclo-zz5bd32mg6fn-1394132557.us-east-2.elb.amazonaws.com/api/v1/orderservice/orders/1
 
-http://localhost:4002/api/v1/redis-service/health
+http://localhost:4002/api/v1/caching-service/health
 
-http://lb-publiclo-zz5bd32mg6fn-1394132557.us-east-2.elb.amazonaws.com/api/v1/redis-service/health
+http://lb-publiclo-zz5bd32mg6fn-1394132557.us-east-2.elb.amazonaws.com/api/v1/caching-service/health
 ```
 
 #
