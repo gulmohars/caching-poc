@@ -6,7 +6,12 @@ redisUtility.addValue = async (paramsObj) => {
   if (await redisClient.get(rKey)) {
     return 'Key already Exists';
   }
-  return await redisClient.setex(rKey, rTTL, rValue);
+  if (typeof rTTL !== 'undefined') {
+    return await redisClient.setex(rKey, rTTL, rValue);
+  } else {
+    return await redisClient.set(rKey, rValue);
+  }
+  //return await redisClient.setex(rKey, rTTL, rValue);
 };
 
 redisUtility.getValue = async (rKey) => {
@@ -25,7 +30,12 @@ redisUtility.updateValue = async (paramsObj) => {
   if (!(await redisClient.get(rKey))) {
     return 'Key does not Exists';
   }
-  return await redisClient.setex(rKey, rTTL, rValue);
+  if (typeof rTTL !== 'undefined') {
+    return await redisClient.setex(rKey, rTTL, rValue);
+  } else {
+    return await redisClient.set(rKey, rValue);
+  }
+  // return await redisClient.setex(rKey, rTTL, rValue);
 };
 
 redisUtility.deleteKey = async (rKey) => {
