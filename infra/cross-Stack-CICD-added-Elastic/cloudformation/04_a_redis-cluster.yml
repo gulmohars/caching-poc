@@ -39,92 +39,30 @@ Resources:
     Properties:
       Description: The Subnet Group for the redis cluster
       SubnetIds:
-        - Fn::ImportValue: !Join [':', [!Ref EnvironmentName, 'PublicSubnetOne']]
-        - Fn::ImportValue: !Join [':', [!Ref EnvironmentName, 'PublicSubnetTwo']]
+        - Fn::ImportValue: !Join [':', [!Ref EnvironmentName, 'PrivateSubnetOne']]
+        - Fn::ImportValue: !Join [':', [!Ref EnvironmentName, 'PrivateSubnetTwo']]
 
   RedisCluster:
     Type: 'AWS::ElastiCache::CacheCluster'
     Properties:
       AutoMinorVersionUpgrade: true
-      CacheNodeType: cache.t2.micro
+      # CacheNodeType: cache.t2.micro
+      CacheNodeType: !Ref ClusterNodeType
       CacheSubnetGroupName: !Ref RedisSubnetGroup
       Engine: redis
       NumCacheNodes: 1
       Port: !Ref ElastiCachePort
       VpcSecurityGroupIds:
         - !Ref RedisSecurityGroup
-  # CacheSecurityGroup:
-  #   Type: AWS::EC2::SecurityGroup
-  #   Properties:
-  #     GroupDescription: Cache security group
-  #     VpcId:
-  #       Fn::ImportValue: !Join [':', [!Ref EnvironmentName, 'VPCId']]
-  #     SecurityGroupIngress:
-  #       - IpProtocol: tcp
-  #         FromPort: 6379
-  #         ToPort: 6379
-  #         SourceSecurityGroupId: Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'FargateContainerSecurityGroup']]
-  # RedisCluster:
-  #   Type: AWS::ElastiCache::CacheCluster
-  #   Properties:
-  #     CacheNodeType: !Ref ClusterNodeType
-  #     VpcSecurityGroupIds:
-  #       - !GetAtt CacheSecurityGroup.GroupId
-  #     Engine: redis
-  #     NumCacheNodes: 1
-  #     RedisCluster:
-  #       Type: "AWS::ElastiCache::CacheCluster"
-  #       Properties:
-  #         AutoMinorVersionUpgrade: true
-  #         CacheNodeType: cache.t2.micro
-  #         CacheSubnetGroupName:  !Ref RedisSubnetGroup
-  #         Engine: redis
-  #         EngineVersion: 3.2.6
-  #         NumCacheNodes: 1
-  #         Port: !Ref ElastiCachePort
-  #         VpcSecurityGroupIds:
-  #           - !Ref RedisSecurityGroup
-  # CacheSecurityGroupIngress:
-  #   Type: AWS::EC2::SecurityGroupIngress
-  #   Properties:
-  #     GroupId: !GetAtt CacheSecurityGroup.GroupId
-  #     IpProtocol: tcp
-  #     FromPort: !GetAtt RedisCluster.RedisEndpoint.Port
-  #     ToPort: !GetAtt RedisCluster.RedisEndpoint.Port
-  #     # SourceSecurityGroupId: !GetAtt ApplicationSecurityGroup.GroupId
-  #     SourceSecurityGroupId:
-  #       Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'FargateContainerSecurityGroup']]
-  #     # SourceSecurityGroup:
-  #     # - Fn::ImportValue: !Join [':', [!Ref 'EnvironmentName', 'FargateContainerSecurityGroup']]
 
 Outputs:
   RedisHost:
     Description: Elastic Cache endpoint -  host url
-    Value: !GetAtt 'RedisCluster.RedisEndpoint.Address'
+    Value: !GetAtt RedisCluster.RedisEndpoint.Address
     Export:
       Name: !Join [':', [!Ref 'EnvironmentName', 'RedisHost']]
   RedisPort:
     Description: Elastic Cache endpoint -  host url
-    Value: !GetAtt 'RedisCluster.RedisEndpoint.Port'
+    Value: !GetAtt RedisCluster.RedisEndpoint.Port
     Export:
       Name: !Join [':', [!Ref 'EnvironmentName', 'RedisPort']]
-  # ClusterName:
-  #   Description: The name of the ECS cluster
-  #   Value: !Ref 'ECSCluster'
-  #   Export:
-  #     Name: myClusterName
-  # ECSRole:
-  #   Description: The ARN of the ECS role
-  #   Value: !GetAtt 'ECSRole.Arn'
-  #   Export:
-  #     Name: !Join [':', [!Ref 'EnvironmentName', 'ECSRole']]
-  # ECSTaskExecutionRole:
-  #   Description: The ARN of the ECS role
-  #   Value: !GetAtt 'ECSTaskExecutionRole.Arn'
-  #   Export:
-  #     Name: !Join [':', [!Ref 'EnvironmentName', 'ECSTaskExecutionRole']]
-  # FargateContainerSecurityGroup:
-  #   Description: The ARN of the Farget Container SG
-  #   Value: !Ref 'FargateContainerSecurityGroup'
-  #   Export:
-  #     Name: !Join [':', [!Ref 'EnvironmentName', 'FargateContainerSecurityGroup']]

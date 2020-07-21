@@ -1,4 +1,44 @@
-# caching-poc
+# AWS ElastiCache
+
+## Overview
+
+ElastiCache is a distributed cache environment for providing faster access to data by using cloud-based caching. Querying for data directly from databases or through remote API calls is much slower than querying the data from cache. AWS provides ElastiCache service which has high performance, scalability and cost-effectiveness. It removes the complexities associated with managing a distributed cache.
+
+### Use Cases for ElastiCache
+
+Below are some of the use cases which leverage ElastiCache for fastness in querying in a cost-effective manner.
+
+1. **Real-time analytics** -When customers do online shopping, the recommendation of products have to generated instantly when the customer is still browsing the catalogue. This needs the existing products already chosen by the customer to be stored in the cache and analysed in real time for recommending the next set of products.
+
+2. **Message Management** -When the message is sent to subscribers through some channels, there is always a flux of some subscribers cancelling their subscription and some other joining the specific channel. Without caching mechanism there is a chance of messages getting missed or misplaced due to delay. So ElastiCache helps in maintain the subscription status current and accurate.
+
+3. **Leader boards** -In the gaming industry there is a constant update on the points scored by the gamers and their position in the leader board. This needs continuous update and caching is very much needed here to be able to display the changing leadership positions continuously.
+
+## ElastiCache Content
+
+Everything can not be and need not be cached. So, the various factors that influence what kind of content need to be cached are discussed below.
+
+1. **Database content** – Those content which are fetched after a complex and expensive query processing are definitely a candidate for caching. It reduces latency by avoiding repetition of query processing and brings down the cost of database disk read/write.
+
+2. **Frequently accessed data** – Even when there is a type of data that does not involve expensive query, it may need caching if it is more frequently accessed that other chunks of data.
+
+3. **Access Pattern** – If the data changes too frequently, then it is not useful for caching. So, we need to look for the ways where the accessed data is relatively static but frequently needed by user.
+
+4. **Tolerance for Staleness** – Once cached, the data starts becoming stale until it is read again. In such scenarios, if the application needing the data has low tolerance for stale data then caching does not help. For example, when you are buying a stock, the price needs to be accurate at the moment hence no caching needed. But yesterday’s closing stock price which will be frequently referred for today’s calculation is static and needs to be cached.
+
+## Components of ElastiCache
+
+The ElastiCache provisioned by AWS has the following important components.
+
+1. **Node** - A node is a fixed-size chunk of secure, network-attached RAM. Each cache node has its own Domain Name Service (DNS) name and port.
+
+2. **ElastiCache for Redis Shards** – It is a group of one to six related nodes. A cluster can have one to 90 shards.
+
+3. **ElastiCache for Redis Clusters** - A Redis cluster is a logical grouping of one or more ElastiCache for Redis Shards. Data is partitioned across the shards in a Redis (cluster mode enabled) cluster.
+
+4. **ElastiCache for Redis Endpoints** – It is a unique address your application uses to connect to an ElastiCache node or cluster.
+
+> A Redis cluster is a logical grouping of one or more ElastiCache shards. Data is partitioned across the shards in a Redis cluster. But you can also run Redis with the cluster mode enabled or disabled. With cluster mode disabled, we call it a standalone Redis cluster. With cluster mode enabled, it is called Redis cluster with multiple shards.
 
 ## AWS ElastiCache - Memcached and Redis
 
@@ -94,13 +134,13 @@ Write through ensures that data is always fresh but may fail with empty nodes an
 
 > How TTL Works
 
-Time to live (TTL) is an integer value that specifies the number of seconds until the key expires. When an application attempts to read an expired key, it is treated as though the key is not found, meaning that the database is queried for the key and the cache is updated. 
+Time to live (TTL) is an integer value that specifies the number of seconds until the key expires. When an application attempts to read an expired key, it is treated as though the key is not found, meaning that the database is queried for the key and the cache is updated.
 
 This does not guarantee that a value is not stale(or not latest), but it keeps data from getting too stale and requires that values in the cache are occasionally refreshed from the database.
 
 > TTL Example
 
-The below code gives an example of how TTL is implemented by using a function. 
+The below code gives an example of how TTL is implemented by using a function.
 
 ```
 async function save_customer(customer_id, values) {
@@ -118,22 +158,22 @@ Code for Lazy Load Strategy
 async function get_customer(customer_id) {
 
     customer_record = cache.get(customer_id)
-    
+
     if (customer_record !== null) {
       return customer_record        // return the record and exit function
     }
-            
+
     // do this only if the record did not exist in the cache OR the record in the cache had expired.
     customer_record = db.query("SELECT * FROM Customers WHERE id = {0}", customer_id)
     cache.setex(customer_id, customer_record, 300)  // update the cache
-    return customer_record    
-}   
+    return customer_record
+}
 ```
-
 
 ## How to run the application locally.
 
 You must have docker installed on your machine and then simple run the below command
+
 ```
 docker-compose up --build
 ```

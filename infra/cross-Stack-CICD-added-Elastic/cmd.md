@@ -61,6 +61,16 @@ aws cloudformation  --profile gulmohars create-stack --stack-name ecs --template
 
 aws cloudformation --profile gulmohars create-stack --stack-name rc --template-body file://$PWD/infra/cross-Stack-CICD-added-Elastic/cloudformation/04_a_redis-cluster.yml
 
+
+aws elasticache --profile gulmohars describe-cache-clusters --cache-cluster-id rc-red-15ghdt48qr4ia
+
+------ OR ------
+
+aws cloudformation --profile gulmohars create-stack --stack-name rc --template-body file://$PWD/infra/cross-Stack-CICD-added-Elastic/cloudformation/04_b_with_cluster_mode_enable_redis-cluster.yml
+
+----------------
+
+
 aws cloudformation --profile gulmohars create-stack --stack-name cs --template-body file://$PWD/infra/cross-Stack-CICD-added-Elastic/cloudformation/05_customer-service.yml
 
 aws cloudformation  --profile gulmohars create-stack --stack-name oss --template-body file://$PWD/infra/cross-Stack-CICD-added-Elastic/cloudformation/06_order-service.yml
@@ -68,10 +78,10 @@ aws cloudformation  --profile gulmohars create-stack --stack-name oss --template
 aws cloudformation --profile gulmohars create-stack --stack-name ec --template-body file://$PWD/infra/cross-Stack-CICD-added-Elastic/cloudformation/07_caching-service.yml
 ```
 
->login to aws console >> cloudformation >> create stack-name
-select the upload template and choose the file ==> /infra/cross-Stack-CICD-added-Elastic/cloudformation/deployment-pipeline.yaml
+> login to aws console >> cloudformation >> create stack-name
+> select the upload template and choose the file ==> /infra/cross-Stack-CICD-added-Elastic/cloudformation/deployment-pipeline.yaml
 
->CICD NOT WORKING, but cloudformation template code is ready - some issue with deployment template
+> CICD NOT WORKING, but cloudformation template code is ready - some issue with deployment template
 
 #
 
