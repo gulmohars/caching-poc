@@ -1,5 +1,7 @@
 # AWS ElastiCache
 
+---
+
 ## Overview
 
 ElastiCache is a distributed cache environment for providing faster access to data by using cloud-based caching. Querying for data directly from databases or through remote API calls is much slower than querying the data from cache. AWS provides ElastiCache service which has high performance, scalability and cost-effectiveness. It removes the complexities associated with managing a distributed cache.
@@ -15,6 +17,8 @@ Below are some of the use cases which leverage ElastiCache for fastness in query
 3. **Leader boards** -In the gaming industry there is a constant update on the points scored by the gamers and their position in the leader board. This needs continuous update and caching is very much needed here to be able to display the changing leadership positions continuously.
 
 ## ElastiCache Content
+
+![1-Page-6.jpg](img/1-Page-6.jpg)
 
 Everything can not be and need not be cached. So, the various factors that influence what kind of content need to be cached are discussed below.
 
@@ -38,7 +42,65 @@ The ElastiCache provisioned by AWS has the following important components.
 
 4. **ElastiCache for Redis Endpoints** – It is a unique address your application uses to connect to an ElastiCache node or cluster.
 
-> A Redis cluster is a logical grouping of one or more ElastiCache shards. Data is partitioned across the shards in a Redis cluster. But you can also run Redis with the cluster mode enabled or disabled. With cluster mode disabled, we call it a standalone Redis cluster. With cluster mode enabled, it is called Redis cluster with multiple shards.
+   ![1-Page-1.jpg](img/1-Page-1.jpg)
+
+---
+
+## Redis Cluster
+
+A **Redis cluster** is a logical grouping of one or more ElastiCache shards. Data is partitioned across the shards in a Redis cluster. But you can also run Redis with the cluster mode enabled or disabled. With cluster mode disabled, we call it a standalone Redis cluster. With cluster mode enabled, it is called Redis cluster with multiple shards.
+
+---
+
+## Redis Shards
+
+A shard is a collection of one or more nodes in an ElastiCache cluster. It is created to support replication of data into various nodes in the ElastiCache cluster so that cache remains reachable in case of loss of few nodes. Depending on how the cluster mode is configured, a Redis cluster can have one or more shards. If the cluster mode is disabled, then the Redis cluster will have only one shard.
+
+```
+A shard = Primary Node + Read Replicas
+```
+
+> **Primary Node**
+
+One of the nodes in a shard is designated as a primary node. Applications can write only to the primary node. Data written to the primary are asynchronously propagated to all the read replicas. An existing primary node can exchange its role with one of the read replicas for better performance.
+
+> **Read Replicas**
+
+Read replica maintains a copy of the data from the cluster's primary node. Read replicas improve read throughput and guard against data loss in cases of a node failure. Applications can read from any node in the cluster whether read replica or primary node.
+
+---
+
+## **Disabled** Cluster Mode
+
+In this mode we create a Redis cluster in which there is only one shard which contains all the Redis nodes. One of the nodes is designated as primary node and others are called read-only replica nodes.
+
+![1-Page-2.jpg](img/1-Page-2.jpg)
+
+Following are the features of a Redis cluster in which the cluster mode is disabled.
+
+- All the nodes in a Redis (cluster mode disabled) cluster must reside in the same region. To improve fault tolerance, you can provision read replicas in multiple Availability Zones within that region.
+
+- When you add a read replica to a cluster, all the data from the primary is copied to the new node. From that point on, whenever data is written to the primary, the changes are asynchronously propagated to all the read replicas.
+
+- Use Redis (cluster mode disabled) clusters with replica nodes to scale your Redis solution for ElastiCache to handle applications that are read-intensive.
+
+## Cluster Mode **Enabled**
+
+In this mode we create a Redis cluster in which there are 1 to 90 shards. Each shard has a primary node and up to five read-only replica nodes. Each read replica in a shard maintains a copy of the data from the shard's primary node.
+
+![1-Page-3.jpg](img/1-Page-3.jpg)
+
+Following are the features of a Redis cluster in which the cluster mode is disabled.
+
+- Asynchronous replication mechanisms are used to keep the read replicas synchronized with the primary. Applications can read from any node in the cluster. Applications can write only to the primary nodes.
+
+- All of the nodes in this Redis cluster must reside in the same region.
+
+- You cannot manually promote any of the replica nodes to primary.
+
+- You can only change the structure of a cluster, the node type, and the number of nodes by restoring from a backup.
+
+---
 
 ## AWS ElastiCache - Memcached and Redis
 
@@ -65,6 +127,8 @@ Memcached is more suitable for simpler data structures and does not provide pers
 - Need the ability to scale out and in, adding and removing nodes as demand on your system increases and decreases.
 - Need to cache objects, such as a database.
 
+---
+
 ## Caching Strategies
 
 There are different ways to populate the cache and keep maintaining the cache. These different ways are known as caching strategies.
@@ -77,13 +141,13 @@ There are different ways to populate the cache and keep maintaining the cache. T
 
 When data is requested by the application, the request searches for data in the cache of ElastiCache. There are two possibilities. Either the data exists in the cache or it does not. Accordingly we classify the situation in to following two categories.
 
-> Cache Hit
+> **Cache Hit**
 
 - The application requests the data from Cache.
 - The cache query finds that updated data is available in the cache.
 - The result is returned to the requesting application.
 
-> Cache Miss
+> **Cache Miss**
 
 - The application requests the data from Cache.
 - The cache query finds that updated data is not available in the cache.
@@ -93,7 +157,8 @@ When data is requested by the application, the request searches for data in the 
 - Next time the same data is requested, it will fall into cache hit scenario above.
 
 The above scenarios can be generally depicted by the below diagram.
-![lazy_loading](img/lazy_loading.jpg)
+
+![1-Page-4.jpg](img/1-Page-4.jpg)
 
 #### Advantages of Lazy Loading
 
@@ -112,7 +177,8 @@ The above scenarios can be generally depicted by the below diagram.
 Like lazy loading, write through is another caching strategy but unlike lazy loading, it does not wait for a hit or miss. It is a straight forward strategy in which the syncing between cache and database happens as soon as some data is written into the database.
 
 It can be easily understood from the below diagram.
-![write_through](img/write_through.jpg)
+
+![1-Page-5](img/1-Page-5.jpg)
 
 #### Advantages of Write Through
 
@@ -132,13 +198,13 @@ TTL is also known as Time to live. It is used to take advantage of both the lazy
 
 Write through ensures that data is always fresh but may fail with empty nodes and may populate the cache with superfluous/un-necessary data. By adding a time to live (TTL) value to each write, we are able to get the advantages of each strategy and largely avoid cluttering up the cache with superfluous data.
 
-> How TTL Works
+> **How TTL Works**
 
 Time to live (TTL) is an integer value that specifies the number of seconds until the key expires. When an application attempts to read an expired key, it is treated as though the key is not found, meaning that the database is queried for the key and the cache is updated.
 
 This does not guarantee that a value is not stale(or not latest), but it keeps data from getting too stale and requires that values in the cache are occasionally refreshed from the database.
 
-> TTL Example
+> **TTL Example**
 
 The below code gives an example of how TTL is implemented by using a function.
 
@@ -169,6 +235,18 @@ async function get_customer(customer_id) {
     return customer_record
 }
 ```
+
+## Pricing
+
+Get started with Amazon ElastiCache for Free
+
+Pay only for what you use. There is no minimum fee. Estimate your monthly bill using the [AWS Simple Monthly Calculator](http://calculator.s3.amazonaws.com/calc5.html).
+
+On-Demand Nodes let you pay for memory capacity by the hour your node runs with no long-term commitments. This frees you from the costs and complexities of planning, purchasing, and maintaining hardware and transforms what are commonly large fixed costs into much smaller variable costs.
+
+_**Pricing is per node-hour consumed, from the time a node is launched until it is terminated. Each partial node-hour consumed will be billed as a full hour.**_
+
+---
 
 ## How to run the application locally.
 
