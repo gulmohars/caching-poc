@@ -18,17 +18,9 @@ Below are some of the use cases which leverage ElastiCache for fastness in query
 
 ## ElastiCache Content
 
-![1-Page-6.jpg](img/1-Page-6.jpg)
-
 Everything can not be and need not be cached. So, the various factors that influence what kind of content need to be cached are discussed below.
 
-1. **Database content** – Those content which are fetched after a complex and expensive query processing are definitely a candidate for caching. It reduces latency by avoiding repetition of query processing and brings down the cost of database disk read/write.
-
-2. **Frequently accessed data** – Even when there is a type of data that does not involve expensive query, it may need caching if it is more frequently accessed that other chunks of data.
-
-3. **Access Pattern** – If the data changes too frequently, then it is not useful for caching. So, we need to look for the ways where the accessed data is relatively static but frequently needed by user.
-
-4. **Tolerance for Staleness** – Once cached, the data starts becoming stale until it is read again. In such scenarios, if the application needing the data has low tolerance for stale data then caching does not help. For example, when you are buying a stock, the price needs to be accurate at the moment hence no caching needed. But yesterday’s closing stock price which will be frequently referred for today’s calculation is static and needs to be cached.
+![1-Page-6.jpg](img/1-Page-6_n.jpg)
 
 ## Components of ElastiCache
 
