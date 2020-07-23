@@ -247,9 +247,9 @@ You must have docker installed on your machine and then simple run the below com
 ```
 docker-compose up --build
 
-GET http://localhost:6001/api/v1/caching-service/lazy-loading/7
-GET http://localhost:6001/api/v1/caching-service/cachingEngine/  (to get all keys)
-POST http://localhost:6001/api/v1/caching-service/cachingEngine/
+GET http://localhost:4002/api/v1/caching-service/lazy-loading/7
+GET http://localhost:4002/api/v1/caching-service/cachingEngine/  (to get all keys)
+POST http://localhost:4002/api/v1/caching-service/cachingEngine/
 
 request:
 {
@@ -260,7 +260,7 @@ request:
 
 
 
-GET http://localhost:6001/api/v1/caching-service/cachingEngine/rKeyTest3
+GET http://localhost:4002/api/v1/caching-service/cachingEngine/rKeyTest3
 
 
 ```
